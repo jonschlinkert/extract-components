@@ -30,11 +30,10 @@ The CLI is a WIP. It currently takes four arguments:
 extract [src] [selector] [dest] [ext]
 ```
 
-
-* `src`: (`-s` | `--src`) the filepaths or globbing patterns for the file(s) to parse, e.g. `test/fixtures/*.html`
-* `selector`: (`-c`, for "component" | `--selector`)  the _component selector_, e.g. use `.carousel` to extract the carousel component.
-* `dest`: (`-d` | `--dest`) (optional, default is `temp`): the destination directory for extracted components, e.g. `temp`
-* `ext`: (`-e` | `--ext`) (optional, default is `.html`): dest extension to use for dest components, e.g. `.hbs`
+* **src**: `-s`|`--src` the filepaths or globbing patterns for the file(s) to parse, e.g. `test/fixtures/*.html`
+* **selector**: `--selector`  the _component selector_, e.g. use `.carousel` to extract the carousel component.
+* **dest**: `-d`|`--dest` (optional, default is `temp`): the destination directory for extracted components, e.g. `temp`
+* **ext**: `-e`|`--ext` (optional, default is `.html`): dest extension to use for dest components, e.g. `.hbs`
 
 
 ## Author
