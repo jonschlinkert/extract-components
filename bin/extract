@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const log = require('verbalize');
+const file = require('fs-utils');
+const relative = require('relative');
+const template = require('template');
+const _ = require('lodash');
+const argv = require('minimist')(process.argv.slice(2));
+const marked = require('marked');
+const extras = require('marked-extras');
+const prettify = require('../lib/utils/prettify');
+const tmpl = file.readFileSync('lib/utils/template.tmpl');
+
+/**
+ * get
+ */
+
+const extract = require('../lib/html/get');
+
+
+/**
+ * verbalize `runner`
+ */
+
+log.runner = 'extract-component';
+
+/**
+ * Args
+ */
+
+// Optionally run with verbose logging
+log.mode.verbose = argv.v || argv.verbose || false;
+
+var src    = argv._[0] || argv.s || argv.src || 'test/fixtures/**/*.html',
+  selector = argv._[1] || argv.c || argv.selector,
+  dest     = argv._[2] || argv.d || argv.dest || 'examples',
+  ext = argv.e || argv.ext || '.html';
+
+
+/**
+ * Start
+ */
+
+log.writeln();
+
+if (!src) {
+  log.error('Please provide a source file, either as a first argument or with \'-s\'');
+}
+
+if (!selector) {
+  log.error('Please specify a component selector, either as a third argument or with \'-c\'');
+}
+
+
+log.run('parsing', src);
+
+/**
+ * Extract the component
+ */
+
+function setup() {
+  var options = {
+    cwd: 'lib',
+    destBase: 'examples',
+    filter: 'isFile'
+  };
+
+  file.expandMapping('assets/**', options).map(function (fp) {
+    file.copyFileSync(fp.src, fp.dest);
+  });
+}
+
+src = path.join(process.cwd(), src);
+file.expand(src, {filter: 'isFile'}).map(function(filepath) {
+  var opts = {prefix: 'language-', process: true};
+  extras.init(opts);
+  var markedOpts = _.extend({}, extras.markedDefaults, opts);
+  marked.setOptions(markedOpts);
+
+  extract(filepath, selector).components.map(function(component) {
+    var name = _.uniq(component.name.split('-')).join('-') + '.html';
+    var dir = component.name.split('-')[0];
+    var destination = path.join(dest, dir, name);
+
+    var content = prettify(component.content);
+    var assetsPath = relative(destination, path.join(dest, 'assets'));
+    var code = '\n\n```html\n' + content + '\n```\n';
+
+    var rendered = template(tmpl, {
+      content: content,
+      name: name,
+      code: marked(code),
+      assets: assetsPath
+    });
+
+    log.run('writing', relative(destination));
+    file.writeFileSync(destination, rendered);
+  });
+});
+
+log.writeln();
+log.done('done');

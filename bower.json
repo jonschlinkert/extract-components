@@ -1,0 +1,7 @@
+{
+  "name": "extract-components",
+  "version": "0.1.0",
+  "devDependencies": {
+    "bootstrap": "~3.1.1"
+  }
+}
